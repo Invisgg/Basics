@@ -1,0 +1,293 @@
+function ColorPrefix(p: player) :: text:
+    return "%last 2 characters of coloured {_p}'s prefix%" if {_p}'s prefix is set
+    return "&8" if {_p}'s prefix isn't set
+
+command /slowchat <string> <number>:
+    permission: server.helper
+    permission message: &cNo permission
+    usage: &c/slowchat <all/mod> <number>
+    trigger:
+        if arg-1 is "all":
+            if arg-2 isn't 0:
+                set {_time} to "%arg-2% seconds"
+                set {_time} to {_time} parsed as timespan
+                set {slowchat.all} to {_time}
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &aall &7cooldown to &a%arg-2%"
+            else:
+                delete {slowchat.all}
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &aall &7cooldown to &a0"
+        if arg-1 is "default":
+            if arg-2 isn't 0:
+                set {_time} to "%arg-2% seconds"
+                set {_time} to {_time} parsed as timespan
+                set {slowchat.default} to {_time}
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &adefault &7cooldown to &a%arg-2%"
+            else:
+                delete {slowchat.default} 
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &adefault &7cooldown to &a0"
+        if arg-1 is "donor":
+            if arg-2 isn't 0:
+                set {_time} to "%arg-2% seconds"
+                set {_time} to {_time} parsed as timespan
+                set {slowchat.donor} to {_time}
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &adonor &7cooldown to &a%arg-2%"
+            else:
+                delete {slowchat.donor} 
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &adonor &7cooldown to &a0"
+        if arg-1 is "reset":
+            if arg-2 is 0:
+                loop all players:
+                    delete {slowchatt.%loop-player%.e}
+                    delete {slowchatt2.%loop-player%.e}
+                    delete {slowchatt3.%loop-player%.e}
+                broadcast "&a&lSLOWCHAT: &e%ColorPrefix(player)%%player% &7set the &aevery slowchat &7cooldown to &a0"
+
+on chat:
+    if {slowchat.all} is set:
+        if {slowchatt.%player%.e} isn't set:
+            if player doesn't have permission "server.helper":
+                set {slowchatt.%player%.e} to true
+                set {_slow} to {slowchat.all} 
+                wait {_slow}
+                delete {slowchatt.%player%.e}
+        else if {slowchatt.%player%.e} is set:
+            cancel event
+            send "&a&LSLOWCHAT: &eplease wait before typing"
+    else:
+        if {slowchat.default} is set:
+            if player doesn't have permission "chatcolor.donator":
+                if {slowchatt2.%player%.e} isn't set:
+                    set {slowchatt2.%player%.e} to true
+                    set {_slow} to {slowchat.default} 
+                    wait {_slow}
+                    delete {slowchatt2.%player%.e}
+                else if {slowchatt2.%player%.e} is set:
+                    cancel event
+                    send "&a&LSLOWCHAT: &eplease wait before typing"
+        if {slowchat.donor} is set:
+            if player has permission "chatcolor.donor":
+                player doesn't have permission "server.helper"
+                if {slowchatt3.%player%.e} isn't set:
+                    set {slowchatt3.%player%.e} to true
+                    set {_slow} to {slowchat.donor} 
+                    wait {_slow}
+                    delete {slowchatt3.%player%.e}
+                else if {slowchatt3.%player%.e} is set:
+                    cancel event
+                    send "&a&LSLOWCHAT: &eplease wait before typing"
+
+options:
+    #permissions
+    execute_permission: vanish.use
+    see_vanish_permission: vanish.use
+    permission_message: &cYou do not have the permission to execute that command.
+
+    #Settings
+    silentjoin: true # You can make it true or false
+    silentquit: true #You can make it true or false 
+    version: 0.0.1 # You can remove this just a way for me to remember ths is here
+
+    #Color and prefix
+    prefix: &b&lVANISH
+    #NOTE DO NOT REMOVE THE " " (For the maincolor and other color.)
+    maincolor: "blue" #(OPTIONS: red,blue,aqua, yellow,white and pink)
+    other_color: "aqua" #(OPTIONS: red,blue,aqua,yellow,white and pink)
+
+#NOTE: IF YOU DO NOT KNOW HOW TO SKRIPT
+# DO NOT TRY TO GO PAST THIS PART BECAUSE EVERYTHING ELSE IS:
+#                 EDIT AT YOUR OWN RISK.
+
+on load:
+    if {@maincolor} is "blue":
+        set {invisvanish.maincolor} to "&9"
+    if {@maincolor} is "red":
+        set {invisvanish.maincolor} to "&c"
+    if {@maincolor} is "yellow":
+        set {invisvanish.maincolor} to "&e"
+    if {@maincolor} is "white":
+        set {invisvanish.maincolor} to "&f"
+    if {@maincolor} is "pink":
+        set {invisvanish.maincolor} to "&d"
+    if {@maincolor} is "aqua":
+        set {invisvanish.maincolor} to "&b"
+
+on load:
+    if {@other_color} is "blue":
+        set {invisvanish.2color} to "&9"
+    if {@other_color} is "red":
+        set {invisvanish.2color} to "&c"
+    if {@other_color} is "yellow":
+        set {invisvanish.2color} to "&e"
+    if {@other_color} is "white":
+        set {invisvanish.2color} to "&f"
+    if {@other_color} is "pink":
+        set {invisvanish.2color} to "&d"
+    if {@other_color} is "aqua":
+        set {invisvanish.2color} to "&b"
+
+command /vanish [<player>]:
+    permission: {@execute_permission}
+    permission message: {@permission_message}
+    aliases: /v
+    trigger:
+        if arg-1 isn't set:
+            if {invisvanish.%player's uuid%} isn't set:
+                set {invisvanish.%player's uuid%} to true
+                loop all players:
+                    if loop-player doesn't have permission "{@see_vanish_permission}":
+                        hide player from loop-player
+                invisvanish(player, "{invisvanish.%player's uuid%}", player)
+                add player to {vanished::*}
+            else:
+                delete {invisvanish.%player's uuid%}
+                loop all players:
+                    if loop-player doesn't have permission "{@see_vanish_permission}":
+                        reveal player to loop-player
+                invisunvanish(player, "{invisvanish.%player's uuid%}", player)
+                remove player from {vanished::*}
+        else:
+            if {invisvanish.%arg-1's uuid%} isn't set:
+                set {invisvanish.%arg-1's uuid%} to true
+                loop all players:
+                    if loop-player doesn't have permission "{@see_vanish_permission}":
+                        hide arg-1 from loop-player
+                invisvanish(arg-1, "{invisvanish.%player's uuid%}", player)
+                add arg-1 to {vanished::*}
+            else:
+                delete {invisvanish.%arg-1's uuid%}
+                loop all players:
+                    if loop-player doesn't have permission "{@see_vanish_permission}":
+                        reveal arg-1 to loop-player
+                invisunvanish(arg-1, "{invisvanish.%player's uuid%}", player)
+                remove arg-1 from {vanished::*}
+
+function invisvanish(p: player, vanish: text, exe: player) :: boolean:
+    set {_mc} to colored {invisvanish.maincolor}
+    set {_sc} to colored {invisvanish.2color}
+    send colored "&b[S] %ColorPrefix({_p})%%{_p}% &bhas toggled %{_mc}%%ColorPrefix({_exe})%%{_exe}% &bvanish &aon&b." to all players where [{staffalerts::%player%} is set]
+        
+function invisunvanish(p: player, vanish: text, exe: player) :: boolean:
+    set {_mc} to colored {invisvanish.maincolor}
+    set {_sc} to colored {invisvanish.2color}
+    send colored "&b[S] %ColorPrefix({_p})%%{_p}% &bhas toggled %{_mc}%%ColorPrefix({_exe})%%{_exe}% &bvanish &coff&b." to all players where [{staffalerts::%player%} is set]
+
+function join(p: player) :: boolean:
+    loop {vanished::*}:
+        if {_p} doesn't have permission "vanish.use":
+            hide loop-value from {_p}
+        else:
+            reveal loop-value to {_p}
+
+on join:
+    join(player)
+
+on drop:
+    {invisvanish.%player's uuid%} is true
+    cancel event
+    send "&cYou are currently in vanish, therefore you cannot drop." to player
+
+on pickup:
+    {invisvanish.%player's uuid%} is true
+    cancel event
+
+on damage:
+    attacker is player
+    {invisvanish.%attacker's uuid%} is true
+    cancel event
+    send "&cYou are currently in vanish, therefore you cannot attack." to attacker
+
+on damage:
+    victim is player
+    {invisvanish.%victim's uuid%} is true
+    cancel event
+
+on join:
+    {invisvanish.%player's uuid%} is true
+    {@silentjoin} is true
+    set join message to ""
+
+on quit:
+    {invisvanish.%player's uuid%} is true
+    {@silentquit} is true
+    set quit message to ""
+
+on join:
+    if player has permission "staff.chat":
+        send "&b[S] %ColorPrefix(player)%%player%&b has connected to &3Lifesteal-1" to all players where [{staffalerts::%player%} is set]
+    set {_maxplayers} to max player count
+    set join message to "&7(&a+&7) &7%ColorPrefix(player)%%player% &7[%number of all players%&7/%{_maxplayers}%]" if {vanished::*} doesn't contain player
+    set join message to "" if {vanished::*} contains player
+
+on quit:
+    if player has permission "staff.chat":
+        send "&b[S] %ColorPrefix(player)%%player%&b has disconnected from &3Lifesteal-1" to all players where [{staffalerts::%player%} is set]
+    set quit message to ""
+
+command /tp <player=%player%>:
+    permission: staff.teleport
+    usage: &c/tp <player>
+    executable by: players
+    trigger:
+        send "&c/tp <player>" to player if arg 1 is sender
+        teleport player to arg 1 if arg 1 isn't sender
+        send "&b[S] %ColorPrefix(player)%%player%&b has teleported to %ColorPrefix(arg 1)%%arg 1%&b." to all players where [{staffalerts::%player%} is set] if arg 1 isn't sender
+
+command /tphere <player=%player%>:
+    permission: staff.teleport
+    usage: &c/tphere <player>
+    executable by: players
+    trigger:
+        send "&c/tphere <player>" to player if arg 1 is sender
+        teleport arg 1 to player if arg 1 isn't sender
+        send "&b[S] %ColorPrefix(player)%%player%&b has teleported %ColorPrefix(arg 1)%%arg 1% &bto themselves." to all players where [{staffalerts::%player%} is set] if arg 1 isn't sender
+
+#command /hometp <offline player=%player%>:
+    #permission: staff.hometp
+    #usage: &c/hometp <player>
+    #trigger:
+        #send "&c/hometp <player>" to player if arg 1 is sender
+        #send "&b%ColorPrefix(arg 1)%%arg 1% &cdoesn't have a home set." if {home.%arg 1's uuid%} isn't set
+        #teleport arg 1 to {home.%arg 1's uuid%} if arg 1 isn't sender
+        #send "&b[S] %ColorPrefix(player)%%player%&b has teleported to %ColorPrefix(arg 1)%%arg 1%&b's home." to all players where [input has permission "staff.chat"] if arg 1 isn't sender
+
+command /checkuuid <offline player=%player%>:
+    permission: op
+    trigger:
+        send formatted "%ColorPrefix(arg 1)%%arg 1%&7's &7UUID is: <sgt:%arg 1's uuid%>&e%arg 1's uuid%" to sender
+
+command /gmc:
+    permission: staff.gamemode.creative
+    trigger:
+        set player's gamemode to creative
+        send "&b[S] %ColorPrefix(player)%%player%&b has updated their gamemode to &3creative&b." to all players where [{staffalerts::%player%} is set]
+
+command /gms:
+    permission: staff.gamemode.survival
+    trigger:
+        set player's gamemode to survival
+        send "&b[S] %ColorPrefix(player)%%player%&b has updated their gamemode to &3survival&b." to all players where [{staffalerts::%player%} is set]
+
+command /gma:
+    permission: staff.gamemode.adventure
+    trigger:
+        set player's gamemode to adventure
+        send "&b[S] %ColorPrefix(player)%%player%&b has updated their gamemode to &3adventure&b." to all players where [{staffalerts::%player%} is set]
+
+command /gmsp:
+    permission: staff.gamemode.spectator
+    trigger:
+        set player's gamemode to spectator
+        send "&b[S] %ColorPrefix(player)%%player%&b has updated their gamemode to &3spectator&b." to all players where [{staffalerts::%player%} is set]
+
+command /fly:
+    permission: staff.fly
+    trigger:
+        if player's flight mode is false:
+            set player's flight mode to true
+            send "&b[S] %ColorPrefix(player)%%player%&b has updated their fly mode to &3active&b." to all players where [{staffalerts::%player%} is set]
+        else:
+            set player's flight mode to false
+            send "&b[S] %ColorPrefix(player)%%player%&b has updated their fly mode to &3inactive&b." to all players where [{staffalerts::%player%} is set]
+			
+on join:
+	if 
